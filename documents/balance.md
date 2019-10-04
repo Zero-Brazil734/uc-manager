@@ -1,5 +1,6 @@
-## **[Discord Server Union v2]**
-**[:small_orange_diamond:💡『Balance』 신청 조건:small_orange_diamond:]:**
+# **[Discord Server Union v2]**
+
+### [:small_orange_diamond:💡『Balance』 신청 조건:small_orange_diamond:]:
 ```markdown
 # 1. 봇을 제외한 최소 인원이 50명 이상이여야 합니다.
 
