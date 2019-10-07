@@ -1,0 +1,32 @@
+{
+  "name": "dsu-manager",
+  "version": "1.0.0",
+  "description": "DSUv2 open sourced management bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "nodemon bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zero-Brazil734/dsu-manager.git"
+  },
+  "author": {
+    "name": "제로ㅣBrazil",
+    "url": "https://github.com/Zero-Brazil734/",
+    "email": "zero734kr@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "address": "^1.1.2",
+    "chalk": "^2.4.2",
+    "dbcm": "^1.2.6",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.1.0",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26",
+    "mongoose": "^5.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.3"
+  }
+}
