@@ -1,6 +1,6 @@
 require("dotenv").config()
 
-const { RichEmbed } = require("discord.js")
+const Discord = require("discord.js")
 const db = require("mongoose").connection
 const dbcm = require("dbcm")
 const utils = new dbcm.utils({ lang: "ko-KR" })
@@ -32,14 +32,14 @@ exports.run = (client, message, args) => {
 
         if (typeof code !== "string") code = inspect(code, { depth: 0 });
 
-        let evalEmbed = new RichEmbed()
+        let evalEmbed = new Discord.RichEmbed()
             .setAuthor("Eval", message.author.avatarURL)
             .setColor(COR)
             .addField("⌨Input:", `\`\`\`js\n${cmd}\n\`\`\``)
             .addField("💻Output:", `\`\`\`js\n${code}\n\`\`\``)
         message.channel.send(evalEmbed)
     }).catch(Ecmd => {
-        let Eembed = new RichEmbed()
+        let Eembed = new Discord.RichEmbed()
             .setTitle("Eval Error:")
             .setColor(COR)
             .setDescription(`\`\`\`${Ecmd}\`\`\``)

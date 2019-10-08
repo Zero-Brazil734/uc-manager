@@ -211,7 +211,7 @@ client.on("guildMemberRemove", member => {
                         }
                     }
 
-                    if(resp.svadmins.length <= 0) {
+                    if (resp.svadmins.length <= 0) {
                         client.users.get(resp.svowner) ? client.users.get(resp.svowner).send(`⚠ | ${resp.name} 서버의 모든 서버 운영직이 나가 해당 서버의 데이터가 삭제됩니다.`) : null
 
                         db.collection("guilds").findOneAndDelete({ _id: member.guild.id })
@@ -250,13 +250,17 @@ client.on("message", async message => {
     if (message.system || message.author.bot || message.channel.type === "dm") return
 
     db.collection("guilds").findOne({ _id: message.guild.id }, (err, res) => {
-        if (err) return client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
-            .replace("{collection}", "guilds")
-            .replace("{author.tag}", client.user.tag)
-            .replace("{author.id}", client.user.id)
-            .replace("{cmd.content}", "prefix detection")
-            .replace("{err}", err)
-            .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+        if (err) {
+            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+                .replace("{collection}", "guilds")
+                .replace("{author.tag}", client.user.tag)
+                .replace("{author.id}", client.user.id)
+                .replace("{cmd.content}", "prefix detection")
+                .replace("{err}", err)
+                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+
+            throw new Error(err)
+        }
 
         if (!res) {
             var prefix = process.env.prefix
@@ -269,7 +273,21 @@ client.on("message", async message => {
         const args = message.content.slice(prefix.length).trim().split(/ +/g)
         const command = args.shift().toLowerCase()
 
-        cm.runCommand(command, message, args).catch(err => console.error(err))
+        db.collection("users").findOne({ _id: message.author.id }, (erro, resp) => {
+            if (erro) {
+                client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+                    .replace("{collection}", "users")
+                    .replace("{author.tag}", message.author.tag)
+                    .replace("{author.id}", message.author.id)
+                    .replace("{cmd.content}", message.content)
+                    .replace("{err}", erro)
+                    .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+
+                throw new Error(erro)
+            }
+
+            resp.blacklisted === false ? cm.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`)
+        })
 
         const logger = `${chalk.green(`-----------------[명령어 사용]-----------------`)}\n${chalk.blueBright("유저: ")}${chalk.yellow(`${message.author.tag} / ${message.author.id}\n`)}${chalk.blue("명령어: ")}${chalk.yellow(`${command}\n`)}${chalk.blue("메세지: ")}${chalk.yellow(`${moment(message.createdAt).tz("America/Sao_Paulo").format("LLLL")}\n`)}${chalk.green("-----------------[명령어 사용]-----------------\n")}`
         if (client.commands.get(command)) console.log(logger)
