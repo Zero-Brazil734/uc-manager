@@ -5,7 +5,7 @@
 
 ***아래의 문서들을 확인하지 않아 생기는 모든 불이익은 책임지지 않으며, 사전 공지 없이 수정될수 있어 이 또한 미확인에 따른 책임은 해당 유저에게 있습니다.***
 
-***이 소스에 제 개인적인 시간대는 모두 아메리카(브라질), 상파울로로 설정되어 있어 사용시에 `moment(...).tz(America/Sao_Paulo).format(...)`를 `moment(...).tz("Asia/Seoul").format(...)`로 변경을 추천 드립니다.***
+***이 소스에 제 개인적인 시간대는 모두 아메리카(브라질), 상파울로로 설정되어 있어 사용시에 `moment(...).tz("America/Sao_Paulo").format(...)`를 `moment(...).tz("Asia/Seoul").format(...)`로 변경을 추천 드립니다.***
 
 ### 유저 이용 약관:
 * [[바로가기]](https://github.com/Zero-Brazil734/dsu-manager/blob/master/documents/users.md)
