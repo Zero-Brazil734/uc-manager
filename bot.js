@@ -1,26 +1,23 @@
-﻿require("dotenv").config()
+require("dotenv").config()
 
 const Discord = require("discord.js")
-const client = new Discord.Client({
+const dbcm = require("dbcm")
+const client = new dbcm.Client({
     autoReconnect: true,
     disableEveryone: true,
+    dev: "462355431071809537",
+    lang: "ko-KR",
+    ignoreCooldownIfIsAdmin: true,
+    cooldown: {
+        time: 3500,
+        msg: "%{message.author} 님, 쿨타임이 지날때까지 조금만 기다려주세요."
+    },
     disabledEvents: [
         "TYPING_START",
         "USER_NOTE_UPDATE",
         "RELATIONSHIP_ADD",
         "RELATIONSHIP_REMOVE"
     ]
-})
-const dbcm = require("dbcm")
-const cm = new dbcm.bot(client, {
-    lang: "ko-KR",
-    runCommand: {
-        cooldown: {
-            time: 3000,
-            msg: `%{message.author} 님은 현재 쿨타임 중입니다. \`쿨타임: %{cmd.cooldown}초\``
-        },
-        blacklist: {}
-    }
 })
 const chalk = require("chalk").default
 const utils = new dbcm.utils({ lang: "ko-KR" })
@@ -286,7 +283,7 @@ client.on("message", async message => {
                 throw new Error(erro)
             }
 
-            resp.blacklisted === false ? cm.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`)
+            resp.blacklisted === false ? client.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`)
         })
 
         const logger = `${chalk.green(`-----------------[명령어 사용]-----------------`)}\n${chalk.blueBright("유저: ")}${chalk.yellow(`${message.author.tag} / ${message.author.id}\n`)}${chalk.blue("명령어: ")}${chalk.yellow(`${command}\n`)}${chalk.blue("메세지: ")}${chalk.yellow(`${moment(message.createdAt).tz("America/Sao_Paulo").format("LLLL")}\n`)}${chalk.green("-----------------[명령어 사용]-----------------\n")}`
