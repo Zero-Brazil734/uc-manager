@@ -26,7 +26,7 @@ const db = mongoose.connection
 const moment = require("moment-timezone")
 moment.locale("ko-KR")
 
-cm.registerCommands(__dirname + "/commands", { createSample: false })
+client.registerCommands(__dirname + "/commands", { createSample: false })
 
 mongoose.connect(process.env.DB_ACCESS, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(async () => {
