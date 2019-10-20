@@ -286,7 +286,7 @@ client.on("message", async message => {
 
         if (!res) {
             if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`!!\`입니다. \`!!도움말\``)
-            var prefix = process.env.prefix
+            var prefix = process.env.PREFIX
         } else {
             if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`${res.prefix}\`입니다. \`${res.prefix}도움말\``)
             var prefix = String(res.prefix)
