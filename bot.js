@@ -2,87 +2,112 @@ require("dotenv").config()
 
 const Discord = require("discord.js")
 const dbcm = require("dbcm")
-const client = new dbcm.Client({
-    autoReconnect: true,
-    disableEveryone: true,
-    dev: "462355431071809537",
-    lang: "ko-KR",
-    ignoreCooldownIfIsAdmin: true,
-    cooldown: {
-        time: 3500,
-        msg: "%{message.author} 님, 쿨타임이 지날때까지 조금만 기다려주세요."
-    },
-    disabledEvents: [
-        "TYPING_START",
-        "USER_NOTE_UPDATE",
-        "RELATIONSHIP_ADD",
-        "RELATIONSHIP_REMOVE"
-    ]
-})
 const chalk = require("chalk").default
-const utils = new dbcm.utils({ lang: "ko-KR" })
 const mongoose = require("mongoose")
 const db = mongoose.connection
 const moment = require("moment-timezone")
-moment.locale("ko-KR")
+const DSU = require("./controllers/client")
+const promotion = new Discord.Collection()
+const guildModel = require("./models/guild")
+const userModel = require("./models/user")
+const client = new DSU({
+    dev: "462355431071809537",
+    locale: "ko-KR",
+    cooldown: {
+        msg: "%{message.author} 님은 현재 쿨타임 중입니다.",
+        time: 3500
+    },
+    disableEveryone: true,
+    disabledEvents: ["TYPING_START"],
+    autoReconnect: true
+})
+const logger = client.logger
 
-client.registerCommands(__dirname + "/commands", { createSample: false })
-
-mongoose.connect(process.env.DB_ACCESS, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
-    .then(async () => {
-        await console.log(chalk.green("[") + chalk.blue("MongoDB") + chalk.green("]") + " Database successfully stabilized.")
+mongoose.connect(process.env.MONGO_ACCESS, { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true })
+    .then(() => {
+        console.log(chalk.green("[") + chalk.blue("MongoDB") + chalk.green("]") + " Database connection stabilized successfully.")
     })
     .catch(err => {
-        setTimeout(() => {
-            process.exit()
-        }, 1000)
-        throw new Error(err)
+        logger.error(err)
     })
 
+client.registerCommands(__dirname + "/commands/").catch(err => logger.error(err))
+
+
 client.on("ready", () => {
-    db.collection("users").countDocuments({ svadmin: true }, userCount => {
-        db.collection("guilds").countDocuments({ union: true }, guildCount => {
-            console.log(require("./models/ready").readyMsg(client))
-            let s = [
-                { name: `DSUv2 Servers Admins: ${userCount}명`, type: "STREAMING", url: "https://www.twitch.tv/zero734kr" },
-                { name: `DSUv2 Servers: ${guildCount}`, type: "PLAYING" },
-                { name: `DSUv2 Users: ${client.users.size}명`, type: "LISTENING" },
-                { name: `Help: ${process.env.PREFIX}도움말`, type: "WATCHING" }
-            ]
+    require("./models/ready.js")(client)
 
-            function st() {
-                let rs = s[Math.floor(Math.random() * s.length)];
-                client.user.setPresence({ game: rs }).catch(err => console.error(err));
-            }
+    setInterval(() => {
+        guildModel.countDocuments({ union: true }, (err, count) => {
+            userModel.countDocuments({ svadmin: true }, (erro, countU) => {
+                let s = [
+                    {
+                        name: `DSUv2 Users: ${client.users.size}명`,
+                        type: "STREAMING",
+                        url: "https://twitch.tv/undefined"
+                    },
+                    {
+                        name: `DSUv2 Union Admins: ${countU}명`,
+                        type: "WATCHING"
+                    },
+                    {
+                        name: `DSUv2 Unions: ${count}`,
+                        type: "LISTENING"
+                    },
+                    {
+                        name: `DSUv2 Servers: ${client.guilds.size}`,
+                        type: "PLAYING"
+                    }
+                ]
 
-            st();
-            setInterval(() => st(), 7500);
+                function st() {
+                    let rs = s[Math.floor(Math.random() * s.length)];
+                    client.user.setPresence({ game: rs });
+                }
+        
+                st()
+            })
+        })
+    }, 7500)
+
+    this.promo = () => {
+        guildModel.find({ union: true }, (err, res) => {
+            if (err) logger.error(err)
+
+            res.forEach(async f => {
+                if (f.promoTime === 0 || f.promoText === "") return
+
+                await promotion.set(f._id, f.promoText)
+                console.log(`${chalk.green("[")}${chalk.blue("Promotion")}${chalk.green("]")} ${chalk.yellow(f._id)}(${chalk.yellow(f.name)}) 서버의 홍보글 저장 완료`)
+
+                this.promoInterval = setInterval(() => {
+                    promotion.forEach(p => {
+                        client.channels.filter(f => f.name.includes("홍보")).array()[0].send(p)
+                    })
+                }, f.promoTime)
+            })
+        })
+    }
+
+    this.promo()
+})
+
+client.watchModel(guildModel, data => {
+    guildModel.find({ union: true }, (err, res) => {
+        if (err) logger.error(err)
+
+        promotion.deleteAll()
+        logger.log("Refreshing Promotions Texts")
+        res.forEach(async f => {
+            if (f.promoTime === 0 || f.promoText === "") return
+
+            promotion.set(f._id, f.promoText)
+            await clearInterval(this.promoInterval)
+            this.promo()
         })
     })
 })
 
-
-require("./models/guild").find({ union: true }).then(s => {
-    s.forEach(res => {
-        if (!res || res.ads === "" || res.adstime === 0) return
-
-        try {
-            setInterval(() => {
-                client.guilds.get("537682452479475723").channels.filter(f => f.name.includes("홍보")).array()[0].send(String(res.ads))
-            }, parseInt(String(res.adstime), 10))
-        } catch (err) {
-            client.users.get(process.env.OWNERID).send(require("./models/errormodel.js").db
-                .replace("{collection}", "guild model")
-                .replace("{author.tag}", client.user.tag)
-                .replace("{author.id}", client.user.id)
-                .replace("{cmd.content}", "자동 타이머 홍보")
-                .replace("{err}", err)
-                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
-
-            throw new Error(err)
-        }
-    })
-})
 
 client.on("guildBanAdd", (server, user) => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
@@ -93,9 +118,9 @@ client.on("guildBanAdd", (server, user) => {
                 .replace("{author.id}", client.user.id)
                 .replace("{cmd.content}", "guildBanAdd Action")
                 .replace("{err}", err)
-                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-            throw new Error(err)
+            logger.error(err)
         }
         let black = new Discord.RichEmbed()
             .setTitle("DSUv2 Manager 밴 감지:")
@@ -116,9 +141,9 @@ client.on("guildBanRemove", (server, user) => {
                 .replace("{author.id}", client.user.id)
                 .replace("{cmd.content}", "guildBanRemove Action")
                 .replace("{err}", err)
-                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-            throw new Error(err)
+            logger.error(err)
         }
 
         let black = new Discord.RichEmbed()
@@ -150,9 +175,9 @@ client.on("guildDelete", server => {
                 .replace("{author.id}", client.user.id)
                 .replace("{cmd.content}", "guildBanRemove Action")
                 .replace("{err}", err)
-                .replace("{at}", moment(Date.now()).tz("Asia/Seoul").format("LLLL")))
+                .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-            throw new Error(err)
+            logger.error(err)
         }
 
         let guild = new Discord.RichEmbed()
@@ -180,9 +205,9 @@ client.on("guildMemberRemove", member => {
                     .replace("{author.id}", client.user.id)
                     .replace("{cmd.content}", "guildMemberRemove Action")
                     .replace("{err}", err)
-                    .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                    .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-                throw new Error(err)
+                logger.error(err)
             }
 
             if (res) {
@@ -196,9 +221,9 @@ client.on("guildMemberRemove", member => {
                                 .replace("{author.id}", client.user.id)
                                 .replace("{cmd.content}", "guildMemberRemove Action")
                                 .replace("{err}", err)
-                                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                                .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-                            throw new Error(err)
+                            logger.error(erro)
                         }
 
                         if (resp) {
@@ -241,7 +266,7 @@ client.on("rateLimit", info => {
         client.destroy().then(() => client.login(process.env.TOKEN))
     }
 })
-client.on("warn", info => console.warn(chalk.blue("WARN: ") + chalk.yellow(info)))
+client.on("warn", info => logger.warn("WARN: " + info))
 
 client.on("message", async message => {
     if (message.system || message.author.bot || message.channel.type === "dm") return
@@ -254,14 +279,16 @@ client.on("message", async message => {
                 .replace("{author.id}", client.user.id)
                 .replace("{cmd.content}", "prefix detection")
                 .replace("{err}", err)
-                .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-            throw new Error(err)
+            logger.error(err)
         }
 
         if (!res) {
+            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`!!\`입니다. \`!!도움말\``)
             var prefix = process.env.prefix
         } else {
+            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`${res.prefix}\`입니다. \`${res.prefix}도움말\``)
             var prefix = String(res.prefix)
         }
 
@@ -278,17 +305,17 @@ client.on("message", async message => {
                     .replace("{author.id}", message.author.id)
                     .replace("{cmd.content}", message.content)
                     .replace("{err}", erro)
-                    .replace("{at}", moment(Date.now()).tz("America/Sao_Paulo").format("LLLL")))
+                    .replace("{at}", moment().tz("America/Sao_Paulo").format("LLLL")))
 
-                throw new Error(erro)
+                logger.error(erro)
             }
 
-            resp.blacklisted === false ? client.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`)
+            resp ? resp.blacklisted === false ? client.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`) : client.runCommand(command, message, args).catch(err => console.error(err))
         })
 
-        const logger = `${chalk.green(`-----------------[명령어 사용]-----------------`)}\n${chalk.blueBright("유저: ")}${chalk.yellow(`${message.author.tag} / ${message.author.id}\n`)}${chalk.blue("명령어: ")}${chalk.yellow(`${command}\n`)}${chalk.blue("메세지: ")}${chalk.yellow(`${moment(message.createdAt).tz("America/Sao_Paulo").format("LLLL")}\n`)}${chalk.green("-----------------[명령어 사용]-----------------\n")}`
-        if (client.commands.get(command)) console.log(logger)
-        if (client.aliases.get(command)) console.log(logger)
+        let cmdLogger = `${chalk.green(`\n-----------------[명령어 사용]-----------------`)}\n${chalk.blueBright("유저: ")}${chalk.yellow(`${message.author.tag} / ${message.author.id}\n`)}${chalk.blue("명령어: ")}${chalk.yellow(`${command}\n`)}${chalk.blue("내용: ")}${chalk.yellow(message.content + "\n")}${chalk.blue("생성일: ")}${chalk.yellow(`${moment(message.createdAt).tz("America/Sao_Paulo").format("LLLL")}\n`)}${chalk.green("-----------------[명령어 사용]-----------------")}`
+        if (client.commands.get(command)) console.log(cmdLogger)
+        if (client.aliases.get(command)) console.log(cmdLogger)
     })
 })
 
