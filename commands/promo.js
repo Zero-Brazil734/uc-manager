@@ -66,14 +66,17 @@ exports.run = (client, message, args) => {
                     .setDescription("검사가 완료 되었습니다.")
 
                 let memberCount = message.guild.members.filter(b => b.user.bot === false).size
-
                 if (memberCount < 50 && memberCount > 100) {
-                    await unionEmbed.addField("⚖서버 레벨: ", "💡『Balance』")
-                } else if (memberCount < 100 && memberCount < 200) {
+                    return message.channel.send(`${message.author} 님, 해당 서버는 Balance라서 생성 권한이 부족합니다.`)
+                }
+                if (memberCount < 100 && memberCount < 200) {
+                    var time = 86400000
                     await unionEmbed.addField("⚖서버 레벨: ", "💡『Brilliance』")
                 } else if (memberCount < 200) {
+                    var time = 43200000
                     await unionEmbed.addField("⚖서버 레벨: ", "💡『Bravery』")
                 } else {
+                    var time = 0
                     await unionEmbed.addField("⚖서버 레벨: ", "unknown")
                 }
 
@@ -87,7 +90,8 @@ exports.run = (client, message, args) => {
                                         yes.on("collect", () => {
                                             guildModel.findByIdAndUpdate(message.guild.id, {
                                                 $set: {
-                                                    promoText: String(cb.collected.last().content)
+                                                    promoText: String(cb.collected.last().content),
+                                                    promoTime: time
                                                 }
                                             }).then(() => {
                                                 message.author.send("✅ | 성공적으로 홍보글을 생성 했습니다.")
@@ -159,12 +163,15 @@ exports.run = (client, message, args) => {
                 let memberCount = message.guild.members.filter(b => b.user.bot === false).size
 
                 if (memberCount < 50 && memberCount > 100) {
-                    await unionEmbed.addField("⚖서버 레벨: ", "💡『Balance』")
+                    return message.channel.send(`${message.author} 님, 해당 서버는 Balance라서 수정 권한이 부족합니다.`)
                 } else if (memberCount < 100 && memberCount < 200) {
+                    var time = 86400000
                     await unionEmbed.addField("⚖서버 레벨: ", "💡『Brilliance』")
                 } else if (memberCount < 200) {
+                    var time = 43200000
                     await unionEmbed.addField("⚖서버 레벨: ", "💡『Bravery』")
                 } else {
+                    var time = 0
                     await unionEmbed.addField("⚖서버 레벨: ", "unknown")
                 }
 
@@ -178,7 +185,8 @@ exports.run = (client, message, args) => {
                                         yes.on("collect", () => {
                                             guildModel.findByIdAndUpdate(message.guild.id, {
                                                 $set: {
-                                                    promoText: String(cb.collected.last().content)
+                                                    promoText: String(cb.collected.last().content),
+                                                    promoTime: time
                                                 }
                                             }).then(() => {
                                                 message.author.send("✅ | 성공적으로 홍보글을 수정 했습니다.")
