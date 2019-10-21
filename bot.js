@@ -1,4 +1,4 @@
-require("dotenv").config()
+﻿require("dotenv").config()
 
 const Discord = require("discord.js")
 const dbcm = require("dbcm")
@@ -22,6 +22,7 @@ const client = new DSU({
     autoReconnect: true
 })
 const logger = client.logger
+module.exports = promotion
 
 mongoose.connect(process.env.MONGO_ACCESS, { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true })
     .then(() => {
@@ -69,45 +70,27 @@ client.on("ready", () => {
             })
         })
     }, 7500)
+})
 
-    this.promo = () => {
-        guildModel.find({ union: true }, (err, res) => {
-            if (err) logger.error(err)
-
-            res.forEach(async f => {
-                if (f.promoTime === 0 || f.promoText === "") return
-
-                await promotion.set(f._id, f.promoText)
-                console.log(`${chalk.green("[")}${chalk.blue("Promotion")}${chalk.green("]")} ${chalk.yellow(f._id)}(${chalk.yellow(f.name)}) 서버의 홍보글 저장 완료`)
-
-                this.promoInterval = setInterval(() => {
-                    promotion.forEach(p => {
-                        client.channels.filter(f => f.name.includes("홍보")).array()[0].send(p)
-                    })
-                }, f.promoTime)
-            })
-        })
-    }
-
+/*client.watchModel(guildModel, data => {
+    promotion.deleteAll()
+    logger.log("Refreshing Promotions Texts")
     this.promo()
 })
+*/
+guildModel.find({ union: true }).then(r => {
+    r.forEach(p => {
+        setInterval(() => {
+            guildModel.find({ union: true }).then(res => {
+                res.forEach(ff => {
+                    if(ff.promoText == "" || ff.promoTime == 0) return
 
-client.watchModel(guildModel, data => {
-    guildModel.find({ union: true }, (err, res) => {
-        if (err) logger.error(err)
-
-        promotion.deleteAll()
-        logger.log("Refreshing Promotions Texts")
-        res.forEach(async f => {
-            if (f.promoTime === 0 || f.promoText === "") return
-
-            promotion.set(f._id, f.promoText)
-            await clearInterval(this.promoInterval)
-            this.promo()
-        })
+                    client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
+                })
+            }).catch(err => logger.error(err))
+        }, p.promoTime ? p.promoTime : 60000 * 60 * 24)
     })
 })
-
 
 client.on("guildBanAdd", (server, user) => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
