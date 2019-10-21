@@ -78,19 +78,19 @@ client.on("ready", () => {
     this.promo()
 })
 */
-guildModel.find({ union: true }).then(r => {
-    r.forEach(p => {
-        setInterval(() => {
-            guildModel.find({ union: true }).then(res => {
-                res.forEach(ff => {
-                    if(ff.promoText == "" || ff.promoTime == 0) return
 
-                    client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
-                })
-            }).catch(err => logger.error(err))
-        }, p.promoTime ? p.promoTime : 60000 * 60 * 24)
-    })
-})
+let 하아아내멘탈 = []
+setInterval(() => {
+    guildModel.find({ union: true }).then(res => {
+        res.forEach(ff => {
+            if(ff.promoText == "" || ff.promoTime == 0) return
+
+            if(ff.svclass == "Brilliance" && 하아아내멘탈.pop() % 2 === 0) return
+            client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
+        })
+        하아아내멘탈.push(하아아내멘탈.length + 1)
+    }).catch(err => logger.error(err))
+}, 43200000)
 
 client.on("guildBanAdd", (server, user) => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
