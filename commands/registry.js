@@ -6,7 +6,7 @@ const guildController = require("../controllers/guild.js")
 const userController = require("../controllers/user.js")
 const errModel = require("../models/errormodel.js")
 const moment = require("moment-timezone")
-const config = require("../config.json")
+const config = require("../config.js")
 moment.locale("ko-KR")
 
 exports.run = async (client, message, args) => {

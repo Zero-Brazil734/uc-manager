@@ -10,7 +10,7 @@ const DSU = require("./controllers/client")
 const promotion = new Discord.Collection()
 const guildModel = require("./models/guild")
 const userModel = require("./models/user")
-const config = require("./config.json")
+const config = require("./config.js")
 const client = new DSU({
     dev: "462355431071809537",
     locale: "ko-KR",
