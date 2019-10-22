@@ -1,7 +1,9 @@
+const { RichEmbed } = require("discord.js")
+
 exports.run = async(client, message, args) => {
     let botping = await message.channel.send("Calculating...")
     
-    let pEmbed = new Discord.RichEmbed()
+    let pEmbed = new RichEmbed()
         .setTitle(`${client.user.username} Ping:`)
         .addField("💬메세지: ", `${botping.createdTimestamp - message.createdTimestamp}ms`)
         .addField("📡API: ", `${Math.round(client.ping)}ms`)

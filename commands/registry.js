@@ -6,6 +6,7 @@ const guildController = require("../controllers/guild.js")
 const userController = require("../controllers/user.js")
 const errModel = require("../models/errormodel.js")
 const moment = require("moment-timezone")
+const config = require("../config.json")
 moment.locale("ko-KR")
 
 exports.run = async (client, message, args) => {
@@ -14,7 +15,7 @@ exports.run = async (client, message, args) => {
     db.collection("guilds").findOne({ _id: message.guild.id }, (err, res) => {
         if (err) {
             message.reply(" error")
-            client.users.get(process.env.OWNERID).send(errModel.db
+            client.users.get(config.OWNERID).send(errModel.db
                 .replace("{collection}", "guilds")
                 .replace("{server.name}", client.guilds.get(res._id).name)
                 .replace("{server.id}", res._id)
@@ -32,7 +33,7 @@ exports.run = async (client, message, args) => {
             db.collection("users").findOne({ _id: message.author.id }, (erro, resp) => {
                 if (erro) {
                     message.reply(" error")
-                    client.users.get(process.env.OWNERID).send(errModel.db
+                    client.users.get(config.OWNERID).send(errModel.db
                         .replace("{collection}", "users")
                         .replace("{server.name}", message.guild.name)
                         .replace("{server.id}", message.guild.id)
@@ -64,7 +65,7 @@ exports.run = async (client, message, args) => {
                             userController.setUser(message.author)
                             message.channel.send(`${message.author} 님의 등록을 성공적으로 처리 했습니다. \`TIP: 만약 연합 서버이시다면 !!등록 연합을 하신 후에 !!등록 운영자를 써주세요.\``)
                         } catch (err) {
-                            client.users.get(process.env.OWNERID).send(errModel.db
+                            client.users.get(config.OWNERID).send(errModel.db
                                 .replace("{collection}", "user model")
                                 .replace("{server.name}", message.guild.name)
                                 .replace("{server.id}", message.guild.id)
@@ -91,7 +92,7 @@ exports.run = async (client, message, args) => {
             if (message.author.id !== message.guild.ownerID) return message.channel.send(`${message.author} 님, 서버 등록은 해당 서버의 오너만이 가능합니다.`)
             db.collection("guilds").findOne({ _id: message.guild.id }, (erro, resp) => {
                 if (erro) {
-                    client.users.get(process.env.OWNERID).send(errModel.db
+                    client.users.get(config.OWNERID).send(errModel.db
                         .replace("{collection}", "guilds")
                         .replace("{server.name}", message.guild.name)
                         .replace("{server.id}", message.guild.id)
@@ -123,7 +124,7 @@ exports.run = async (client, message, args) => {
                             guildController.store(message.guild, message.author)
                             message.channel.send(`${message.author} 님, 해당 서버의 등록 절차가 성공적으로 완료 되었습니다. \`TIP: 연합 서버라면 !!등록 연합으로 다시 가입하셔야 합니다.\``)
                         } catch (err) {
-                            client.users.get(process.env.OWNERID).send(errModel.db
+                            client.users.get(config.OWNERID).send(errModel.db
                                 .replace("{collection}", "guild model")
                                 .replace("{server.name}", message.guild.name)
                                 .replace("{server.id}", message.guild.id)
@@ -152,7 +153,7 @@ exports.run = async (client, message, args) => {
 
             db.collection("guilds").findOne({ _id: message.guild.id }, (erro, resp) => {
                 if (erro) {
-                    client.users.get(process.env.OWNERID).send(errModel.db
+                    client.users.get(config.OWNERID).send(errModel.db
                         .replace("{collection}", "guilds")
                         .replace("{server.name}", message.guild.name)
                         .replace("{server.id}", message.guild.id)
@@ -233,7 +234,7 @@ exports.run = async (client, message, args) => {
                                                         .setDescription(`**신청자:** ${message.author.tag}(${message.author.id})\n**신청 서버:** ${message.guild.name}(${message.guild.id})\n**예상 레벨:** ${svclass}`)
                                                         .addField("📋양식:", collected)
                                                         .setFooter(message.guild.name, message.guild.iconURL)
-                                                    await client.users.get(process.env.OWNERID).send(confirm)
+                                                    await client.users.get(config.OWNERID).send(confirm)
                                                     message.author.send(`✅ | "${message.guild.name}" 서버에 대한 신청을 전송 완료 했습니다. 심사를 기다려주세요.`)
                                                 })
                                             })
@@ -242,7 +243,7 @@ exports.run = async (client, message, args) => {
                                 }, 3500)
                             })
                         } catch (err) {
-                            client.users.get(process.env.OWNERID).send(errModel.cmd
+                            client.users.get(config.OWNERID).send(errModel.cmd
                                 .replace("{cmd}", "등록")
                                 .replace("{server.name}", message.guild.name)
                                 .replace("{server.id}", message.guild.id)
@@ -270,7 +271,7 @@ exports.run = async (client, message, args) => {
 
             db.collection("guilds").findOne({ _id: message.guild.id }, (erro, resp) => {
                 if (erro) {
-                    client.users.get(process.env.OWNERID).send(errModel.db
+                    client.users.get(config.OWNERID).send(errModel.db
                         .replace("{collection}", "guilds")
                         .replace("{server.name}", message.guild.name)
                         .replace("{server.id}", message.guild.id)
@@ -288,7 +289,7 @@ exports.run = async (client, message, args) => {
 
                 db.collection("users").findOne({ _id: message.author.id }, async (error, respo) => {
                     if (error) {
-                        client.users.get(process.env.OWNERID).send(errModel.db
+                        client.users.get(config.OWNERID).send(errModel.db
                             .replace("{collection}", "users")
                             .replace("{server.name}", message.guild.name)
                             .replace("{server.id}", message.guild.id)
@@ -376,7 +377,7 @@ exports.run = async (client, message, args) => {
                                             break;
                                         }
                                         if (client.guilds.get("537682452479475723").members.get(message.author.id)) client.guilds.get("537682452479475723").members.get(message.author.id).addRole(role).catch(err => {
-                                            client.users.get(process.env.OWNERID).send(errModel.cmd
+                                            client.users.get(config.OWNERID).send(errModel.cmd
                                                 .replace("{cmd}", "등록")
                                                 .replace("{server.name}", message.guild.name)
                                                 .replace("{server.id}", message.guild.id)

@@ -9,7 +9,7 @@ const userModel = require("../models/user")
 const db = mongoose.connection
 
 exports.run = async (client, message, args) => {
-    if (message.author.id !== process.env.OWNERID) return
+    if (message.author.id !== require("../config.json").OWNERID) return
 
     let text = args.join(" ")
 

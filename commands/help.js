@@ -41,10 +41,10 @@ exports.run = async(client, message, args) => {
         if(!client.commands.get(args[0]) && !client.aliases.get(args[0])) return message.channel.send(`${message.author} 님, 해당 명령어는 존재하지 않습니다.`)
 
         if(client.commands.get(args[0])) {
-            var info = await new RichEmbed().addField(`명령어 이름: ${client.commands.get(args[0]).config.name}`, `**명령어 설명:** ${client.commands.get(args[0]).config.description}\n**단축키 목록:** ${client.commands.get(args[0]).config.aliases.join(", ")}`)
+            var info = await new RichEmbed().addField(`명령어 이름: ${client.commands.get(args[0]).config.name}`, `**명령어 설명:** ${client.commands.get(args[0]).config.description}\n**단축키 목록:** \`\`${client.commands.get(args[0]).config.aliases.join("``, ``")}\`\``)
         }
         if(client.aliases.get(args[0])) {
-            var info = await new RichEmbed().addField(`명령어 이름: ${client.aliases.get(args[0]).config.name}`, `**명령어 설명:** ${client.aliases.get(args[0]).config.description}\n**단축키 목록:** ${client.aliases.get(args[0]).config.aliases.join(", ")}`)
+            var info = await new RichEmbed().addField(`명령어 이름: ${client.aliases.get(args[0]).config.name}`, `**명령어 설명:** ${client.aliases.get(args[0]).config.description}\n**단축키 목록:** \`\`${client.aliases.get(args[0]).config.aliases.join("``, ``")}\`\``)
         }
 
         message.channel.send(info.setAuthor(`${client.user.username}의 ${args[0]} 명령어 도움말:`, client.user.avatarURL).setTimestamp().setFooter(message.author.username, message.author.avatarURL).setColor(client.color))

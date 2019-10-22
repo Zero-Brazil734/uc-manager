@@ -25,7 +25,7 @@ const guildSchema = new Schema({
     prefix: {
         type: String,
         required: false,
-        default: process.env.PREFIX
+        default: "!!"
     },
     svclass: {
         type: String,

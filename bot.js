@@ -1,4 +1,4 @@
-﻿require("dotenv").config()
+require("dotenv").config()
 
 const Discord = require("discord.js")
 const dbcm = require("dbcm")
@@ -10,6 +10,7 @@ const DSU = require("./controllers/client")
 const promotion = new Discord.Collection()
 const guildModel = require("./models/guild")
 const userModel = require("./models/user")
+const config = require("./config.json")
 const client = new DSU({
     dev: "462355431071809537",
     locale: "ko-KR",
@@ -24,7 +25,7 @@ const client = new DSU({
 const logger = client.logger
 module.exports = promotion
 
-mongoose.connect(process.env.MONGO_ACCESS, { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true })
+mongoose.connect(config.DB_ACCESS, { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true })
     .then(() => {
         console.log(chalk.green("[") + chalk.blue("MongoDB") + chalk.green("]") + " Database connection stabilized successfully.")
     })
@@ -79,23 +80,25 @@ client.on("ready", () => {
 })
 */
 
-let 하아아내멘탈 = []
-setInterval(() => {
+let somethingliketimer = []
+setInterval(async() => {
+    await somethingliketimer.push(somethingliketimer.length + 1)
     guildModel.find({ union: true }).then(res => {
+
         res.forEach(ff => {
             if(ff.promoText == "" || ff.promoTime == 0) return
 
-            if(ff.svclass == "Brilliance" && 하아아내멘탈.pop() % 2 === 0) return
-            client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
+            if(ff.svclass !== "Bravery" && parseInt(somethingliketimer[somethingliketimer.length - 1], 10) % 2 == 0) return
+
+            client.channels.filter(f => String(f.name).includes("bot-commands")).array()[0].send(ff.promoText)
         })
-        하아아내멘탈.push(하아아내멘탈.length + 1)
     }).catch(err => logger.error(err))
 }, 43200000)
 
 client.on("guildBanAdd", (server, user) => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
         if (err) {
-            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+            client.users.get(config.OWNERID).send(require("./models/errormodel").db
                 .replace("{collection}", "guilds")
                 .replace("{author.tag}", client.user.tag)
                 .replace("{author.id}", client.user.id)
@@ -108,7 +111,7 @@ client.on("guildBanAdd", (server, user) => {
         let black = new Discord.RichEmbed()
             .setTitle("DSUv2 Manager 밴 감지:")
             .setColor("#ffffff")
-            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에 등재하고 싶으시다면 밴하신 서버에서 \`${res ? res.prefix : "!!"}블랙\`을 입력 해주세요.`)
+            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에 등재하고 싶으시다면 밴하신 서버에서 \`${res ? res.prefix : "!!"}블랙 추가\`을 입력 해주세요.`)
             .setFooter(server.name, server.iconURL)
             .setTimestamp()
         client.users.get(server.ownerID).send(black)
@@ -118,7 +121,7 @@ client.on("guildBanAdd", (server, user) => {
 client.on("guildBanRemove", (server, user) => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
         if (err) {
-            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+            client.users.get(config.OWNERID).send(require("./models/errormodel").db
                 .replace("{collection}", "guilds")
                 .replace("{author.tag}", client.user.tag)
                 .replace("{author.id}", client.user.id)
@@ -132,7 +135,7 @@ client.on("guildBanRemove", (server, user) => {
         let black = new Discord.RichEmbed()
             .setTitle("DSUv2 Manager 언밴 감지:")
             .setColor("#ffffff")
-            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 언밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에서 삭제하고 싶으시다면 밴하신 서버에서 \`$${res.prefix}언블랙\`을 입력 해주세요.`)
+            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 언밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에서 삭제하고 싶으시다면 밴하신 서버에서 \`$${res ? res.prefix : "!!"}블랙 삭제\`을 입력 해주세요.`)
             .setFooter(server.name, server.iconURL)
             .setTimestamp()
         client.users.get(server.ownerID).send(black)
@@ -152,7 +155,7 @@ client.on("guildCreate", server => {
 client.on("guildDelete", server => {
     db.collection("guilds").findOne({ _id: server.id }, (err, res) => {
         if (err) {
-            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+            client.users.get(config.OWNERID).send(require("./models/errormodel").db
                 .replace("{collection}", "guilds")
                 .replace("{author.tag}", client.user.tag)
                 .replace("{author.id}", client.user.id)
@@ -170,9 +173,9 @@ client.on("guildDelete", server => {
         client.users.get(server.ownerID).send(guild)
 
         if (!res) {
-            client.users.get(process.env.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: Unknown\n* Class: ${res.svclass}\n\`\`\``)
+            client.users.get(config.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: Unknown\n* Class: ${res.svclass}\n\`\`\``)
         } else {
-            client.users.get(process.env.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: ${res.union}\n* Class: ${res.svclass}\n\`\`\``)
+            client.users.get(config.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: ${res.union}\n* Class: ${res.svclass}\n\`\`\``)
             db.collection("guilds").findOneAndDelete({ _id: server.id })
         }
     })
@@ -182,7 +185,7 @@ client.on("guildMemberRemove", member => {
     if (member.guild.id === "537682452479475723") {
         db.collection("users").findOne({ _id: member.id }, (err, res) => {
             if (err) {
-                client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+                client.users.get(config.OWNERID).send(require("./models/errormodel").db
                     .replace("{collection}", "users")
                     .replace("{author.tag}", client.user.tag)
                     .replace("{author.id}", client.user.id)
@@ -198,7 +201,7 @@ client.on("guildMemberRemove", member => {
                     if (res.svadmin === true) {
 
                         if (erro) {
-                            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+                            client.users.get(config.OWNERID).send(require("./models/errormodel").db
                                 .replace("{collection}", "guilds")
                                 .replace("{author.tag}", client.user.tag)
                                 .replace("{author.id}", client.user.id)
@@ -246,7 +249,7 @@ client.on("rateLimit", info => {
 
     if (rateLimit.has(150)) {
         rateLimit.clear()
-        client.destroy().then(() => client.login(process.env.TOKEN))
+        client.destroy().then(() => client.login(config.TOKEN))
     }
 })
 client.on("warn", info => logger.warn("WARN: " + info))
@@ -256,7 +259,7 @@ client.on("message", async message => {
 
     db.collection("guilds").findOne({ _id: message.guild.id }, (err, res) => {
         if (err) {
-            client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+            client.users.get(config.OWNERID).send(require("./models/errormodel").db
                 .replace("{collection}", "guilds")
                 .replace("{author.tag}", client.user.tag)
                 .replace("{author.id}", client.user.id)
@@ -268,10 +271,10 @@ client.on("message", async message => {
         }
 
         if (!res) {
-            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`!!\`입니다. \`!!도움말\``)
-            var prefix = "!!"
+            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">")) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`!!\`입니다. \`!!도움말\``)
+            var prefix = config.PREFIX
         } else {
-            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">") && message.mentions.users.first().id === client.user.id) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`${res.prefix}\`입니다. \`${res.prefix}도움말\``)
+            if (message.content.startsWith("<@"+client.user.id+">") || message.content.startsWith("<@!"+client.user.id+">")) return message.channel.send(`${message.author} 님, "${message.guild.name}"에서의 봇 접두사는 \`${res.prefix}\`입니다. \`${res.prefix}도움말\``)
             var prefix = String(res.prefix)
         }
 
@@ -282,7 +285,7 @@ client.on("message", async message => {
 
         db.collection("users").findOne({ _id: message.author.id }, (erro, resp) => {
             if (erro) {
-                client.users.get(process.env.OWNERID).send(require("./models/errormodel").db
+                client.users.get(config.OWNERID).send(require("./models/errormodel").db
                     .replace("{collection}", "users")
                     .replace("{author.tag}", message.author.tag)
                     .replace("{author.id}", message.author.id)
@@ -293,6 +296,7 @@ client.on("message", async message => {
                 logger.error(erro)
             }
 
+            if(res.blacklisted !== false) return message.channel.send(`${message.author} 님, 해당 서버는 블랙리스트로 지정되어 모든 명령어를 사용하실수 없습니다.`)
             resp ? resp.blacklisted === false ? client.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`) : client.runCommand(command, message, args).catch(err => console.error(err))
         })
 
@@ -302,4 +306,4 @@ client.on("message", async message => {
     })
 })
 
-client.login(process.env.TOKEN)
+client.login(config.TOKEN)
