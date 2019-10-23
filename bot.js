@@ -90,7 +90,7 @@ setInterval(async() => {
 
             if(ff.svclass !== "Bravery" && parseInt(somethingliketimer[somethingliketimer.length - 1], 10) % 2 == 0) return
 
-            client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
+            client.channels.filter(f => String(f.name).includes("bot-commands")).array()[0].send(ff.promoText)
         })
     }).catch(err => logger.error(err))
 }, 43200000)
@@ -296,7 +296,7 @@ client.on("message", async message => {
                 logger.error(erro)
             }
 
-            if(res.blacklisted !== false) return message.channel.send(`${message.author} 님, 해당 서버는 블랙리스트로 지정되어 모든 명령어를 사용하실수 없습니다.`)
+            if(res && res.blacklisted !== false) return message.channel.send(`${message.author} 님, 해당 서버는 블랙리스트로 지정되어 모든 명령어를 사용하실수 없습니다.`)
             resp ? resp.blacklisted === false ? client.runCommand(command, message, args).catch(err => console.error(err)) : message.channel.send(`${message.author} 님은 블랙리스트에 지정되어 명령어를 사용하실수 없습니다.`) : client.runCommand(command, message, args).catch(err => console.error(err))
         })
 

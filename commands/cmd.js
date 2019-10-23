@@ -11,7 +11,11 @@ const db = mongoose.connection
 exports.run = async (client, message, args) => {
     if (message.author.id !== require("../config.js").OWNERID) return
 
-    let text = args.join(" ")
+    let msg = message,
+        guild = message.guild,
+        channel = message.channel,
+        author = message.author,
+        text = args.join(" ")
 
     new Promise(resolve => resolve(eval(text)))
         .then(async res => {
