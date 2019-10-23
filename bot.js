@@ -90,7 +90,7 @@ setInterval(async() => {
 
             if(ff.svclass !== "Bravery" && parseInt(somethingliketimer[somethingliketimer.length - 1], 10) % 2 == 0) return
 
-            client.channels.filter(f => String(f.name).includes("bot-commands")).array()[0].send(ff.promoText)
+            client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
         })
     }).catch(err => logger.error(err))
 }, 43200000)
