@@ -12,7 +12,7 @@ class DSU extends Client {
         this.logger = new logger(this)
         this.collectors = new collectors(this)
         this.color = "#ffffff"
-        this.ownerid = require("../config.json").OWNERID
+        this.ownerid = require("../config.js").OWNERID
     }
 
     async watchModel(model, datacb) {
