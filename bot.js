@@ -173,7 +173,7 @@ client.on("guildDelete", server => {
         client.users.get(server.ownerID).send(guild)
 
         if (!res) {
-            client.users.get(config.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: Unknown\n* Class: ${res.svclass}\n\`\`\``)
+            client.users.get(config.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: Unknown\n* Class: Unknown\n\`\`\``)
         } else {
             client.users.get(config.OWNERID).send(`\`\`\`md\n# DSUv2 Manager 서버 퇴장 알림:\n* 연합 여부: ${res.union}\n* Class: ${res.svclass}\n\`\`\``)
             db.collection("guilds").findOneAndDelete({ _id: server.id })
