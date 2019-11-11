@@ -1,4 +1,4 @@
-require("dotenv").config()
+﻿require("dotenv").config()
 
 const Discord = require("discord.js")
 const dbcm = require("dbcm")
@@ -44,20 +44,20 @@ client.on("ready", () => {
             userModel.countDocuments({ svadmin: true }, (erro, countU) => {
                 let s = [
                     {
-                        name: `DSUv2 Users: ${client.users.size}명`,
+                        name: `UC Users: ${client.users.size}명`,
                         type: "STREAMING",
                         url: "https://twitch.tv/undefined"
                     },
                     {
-                        name: `DSUv2 Union Admins: ${countU}명`,
+                        name: `UC Union Admins: ${countU}명`,
                         type: "WATCHING"
                     },
                     {
-                        name: `DSUv2 Unions: ${count}`,
+                        name: `UC Unions: ${count}`,
                         type: "LISTENING"
                     },
                     {
-                        name: `DSUv2 Servers: ${client.guilds.size}`,
+                        name: `UC Servers: ${client.guilds.size}`,
                         type: "PLAYING"
                     }
                 ]
@@ -109,9 +109,9 @@ client.on("guildBanAdd", (server, user) => {
             logger.error(err)
         }
         let black = new Discord.RichEmbed()
-            .setTitle("DSUv2 Manager 밴 감지:")
+            .setTitle("UC Manager 밴 감지:")
             .setColor("#ffffff")
-            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에 등재하고 싶으시다면 밴하신 서버에서 \`${res ? res.prefix : "!!"}블랙 추가\`을 입력 해주세요.`)
+            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 UC의 블랙리스트에 등재하고 싶으시다면 밴하신 서버에서 \`${res ? res.prefix : "!!"}블랙 추가\`을 입력 해주세요.`)
             .setFooter(server.name, server.iconURL)
             .setTimestamp()
         client.users.get(server.ownerID).send(black)
@@ -133,9 +133,9 @@ client.on("guildBanRemove", (server, user) => {
         }
 
         let black = new Discord.RichEmbed()
-            .setTitle("DSUv2 Manager 언밴 감지:")
+            .setTitle("UC Manager 언밴 감지:")
             .setColor("#ffffff")
-            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 언밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 DSUv2의 블랙리스트에서 삭제하고 싶으시다면 밴하신 서버에서 \`$${res ? res.prefix : "!!"}블랙 삭제\`을 입력 해주세요.`)
+            .setDescription(`해당 서버, \`${server.name}\`에서 유저가 언밴 당한것을 감지 했습니다. 만약 해당 유저(\`${user.username}\`)님을 UC의 블랙리스트에서 삭제하고 싶으시다면 밴하신 서버에서 \`$${res ? res.prefix : "!!"}블랙 삭제\`을 입력 해주세요.`)
             .setFooter(server.name, server.iconURL)
             .setTimestamp()
         client.users.get(server.ownerID).send(black)
@@ -144,9 +144,9 @@ client.on("guildBanRemove", (server, user) => {
 
 client.on("guildCreate", server => {
     let newGuild = new Discord.RichEmbed()
-        .setTitle("DSUv2 Manager의 새로운 서버 입장:")
+        .setTitle("UC Manager의 새로운 서버 입장:")
         .setColor("#ffffff")
-        .setDescription(`${server.name} 서버에서 DSUv2 Manager가 입장한것을 감지 했습니다.\n\n\`\`\`md\n# 서버 등록:\n* 해당 서버에서 \`!!등록 서버\`를 입력 해주세요.\n\n# 연합 서버 등록:\n* 해당 서버에서 \`!!등록 연합\`을 입력 해주세요.\n\n# 유저 등록:\n* 해당 서버에서 \`!!등록 유저\`를 입력 해주세요.\n\`\`\``)
+        .setDescription(`${server.name} 서버에서 UC Manager가 입장한것을 감지 했습니다.\n\n\`\`\`md\n# 서버 등록:\n* 해당 서버에서 \`!!등록 서버\`를 입력 해주세요.\n\n# 연합 서버 등록:\n* 해당 서버에서 \`!!등록 연합\`을 입력 해주세요.\n\n# 유저 등록:\n* 해당 서버에서 \`!!등록 유저\`를 입력 해주세요.\n\`\`\``)
         .setFooter(server.name, server.iconURL)
         .setTimestamp()
     client.users.get(client.guilds.get(server.id).ownerID).send(newGuild)
@@ -167,9 +167,9 @@ client.on("guildDelete", server => {
         }
 
         let guild = new Discord.RichEmbed()
-            .setTitle("DSUv2 Manager의 서버 퇴장:")
+            .setTitle("UC Manager의 서버 퇴장:")
             .setColor("#ffffff")
-            .setDescription(`${server.name} 서버에서 DSUv2 Manager가 퇴장한것을 감지 했습니다.\n\n\`\`\`md\n# 주의!\n* 연합 서버가 한번 이 봇을 초대하고 퇴장시키는 행위는 연합을 끊는것으로 간주됩니다.\n* 봇이 퇴장되면 해당 서버에 대한 모든 데이터가 삭제됩니다.`)
+            .setDescription(`${server.name} 서버에서 UC Manager가 퇴장한것을 감지 했습니다.\n\n\`\`\`md\n# 주의!\n* 연합 서버가 한번 이 봇을 초대하고 퇴장시키는 행위는 연합을 끊는것으로 간주됩니다.\n* 봇이 퇴장되면 해당 서버에 대한 모든 데이터가 삭제됩니다.`)
         client.users.get(server.ownerID).send(guild)
 
         if (!res) {
@@ -215,7 +215,7 @@ client.on("guildMemberRemove", member => {
                         if (resp) {
                             await db.collection("guilds").findOneAndUpdate({ svadmins: { $in: [message.author.id] } }, { $pull: { svadmins: [message.author.id] } })
                             client.users.get(resp.svowner) ? client.users.get(resp.svowner).send(`⚠ | ${member}(${member.user.tag}) 님이 DSUv2 서버에서 나가셔서 ${resp.name} 서버 운영자 목록에서 삭제 됬습니다.`) : null
-                            member ? member.send(`⚠ | ${member}(${member.user.tag}) 님이 DSUv2 서버에서 나가셔서 ${resp.name} 서버 운영자 목록에서 삭제 됬습니다.`) : null
+                            member ? member.send(`⚠ | ${member}(${member.user.tag}) 님이 UC 서버에서 나가셔서 ${resp.name} 서버 운영자 목록에서 삭제 됬습니다.`) : null
                         }
                     }
 
@@ -242,15 +242,6 @@ client.on("debug", info => {
         .replace("[connection]", chalk.yellow("[connection]"))
 
     console.log(text)
-})
-client.on("rateLimit", info => {
-    rateLimit.set(rateLimit.size + 1, info)
-    exports.rateLimitInfo = rateLimit
-
-    if (rateLimit.has(150)) {
-        rateLimit.clear()
-        client.destroy().then(() => client.login(config.TOKEN))
-    }
 })
 client.on("warn", info => logger.warn("WARN: " + info))
 
