@@ -15,13 +15,15 @@ exports.run = async (client, message, args) => {
         guild = message.guild,
         channel = message.channel,
         author = message.author,
-        text = args.join(" ")
+        text = args.join(" "),
+        type
 
     new Promise(resolve => resolve(eval(text)))
         .then(async res => {
-            let code = res
+            let code = type = res
 
-            if (typeof code !== "string") code = require("util").inspect(code, { depth: 0 });
+            if (typeof type !== "string") code = require("util").inspect(code, { depth: 0 });
+            if (typeof type === "function") code = type.toString()
 
             let evalEmbed = new Discord.RichEmbed()
                 .setAuthor("Eval", message.author.avatarURL)
