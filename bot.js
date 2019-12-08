@@ -1,4 +1,4 @@
-﻿require("dotenv").config()
+require("dotenv").config()
 
 const Discord = require("discord.js")
 const dbcm = require("dbcm")
@@ -90,7 +90,7 @@ setInterval(async() => {
 
             if(ff.svclass !== "Bravery" && parseInt(somethingliketimer[somethingliketimer.length - 1], 10) % 2 == 0) return
 
-            client.channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
+            client.guilds.filter(f => String(f.name).includes("Congress")).array()[0].channels.filter(f => String(f.name).includes("홍보")).array()[0].send(ff.promoText)
         })
     }).catch(err => logger.error(err))
 }, 43200000)
