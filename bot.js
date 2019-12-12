@@ -18,7 +18,7 @@ const client = new DSU({
         msg: "%{message.author} 님은 현재 쿨타임 중입니다.",
         time: 3500
     },
-    disableEveryone: true,
+    disableEveryone: false,
     disabledEvents: ["TYPING_START"],
     autoReconnect: true
 })
